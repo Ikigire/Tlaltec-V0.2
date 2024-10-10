@@ -1,17 +1,13 @@
-import { StyleSheet, Text, View, Image, Alert, ActivityIndicator } from "react-native";
+import { StyleSheet, Text, View, Image, Alert, ActivityIndicator, TouchableOpacity } from "react-native";
 import React, { Component } from "react";
 import COLORS from "../../App/Constants/Color";
 import { getForecast, getWeather } from "../servises/OpenWeather/weather.servises";
 import { CurrentWeather, Forecast } from "../servises/OpenWeather/models/weather.models";
 import { predecirAlertas } from "../servises/predicciones/predicciones.service";
+import { Huertos } from "../servises/huertos/models/huerto.models";
 
 type Props = {
-  name: string;
-  ubi: string;
-  lat: number;
-  lon: number;
-  AlertAct: string;
-  AlertPron: string;
+  huerto: Huertos;
   imageTemp: any;
   imageHmdd: any;
 };
@@ -20,7 +16,7 @@ type CardState = {
   temp: number;
   hmdd: number;
   loading: boolean;
-  alertasPronosticadas: number
+  alertasPronosticadas: number;
   forecast?: Forecast;
 }
 
@@ -31,7 +27,7 @@ class HuertosCards extends Component<Props, CardState> {
   }
 
   componentDidMount(): void {
-    getWeather(this.props.lat, this.props.lon)
+    getWeather(this.props.huerto.Latitud, this.props.huerto.Longitud)
       .then((response) => {
         if (response.status != 200) {
           throw new Error('No se encontraron huertos registrados');
@@ -47,23 +43,26 @@ class HuertosCards extends Component<Props, CardState> {
         Alert.alert('Error', error.message);
       });
 
-    getForecast(this.props.lat, this.props.lon)
+    getForecast(this.props.huerto.Latitud, this.props.huerto.Longitud)
       .then(response => {
-        if (response.status != 200){
+        if (response.status != 200) {
           throw new Error(`No se pudo completar la petición`)
         }
         return response.json();
       }).then(async (body: Forecast) => {
         const alertas = await predecirAlertas(body);
 
-        this.setState({alertasPronosticadas: alertas.length});
+        this.setState({ alertasPronosticadas: alertas.length });
       })
       .catch((error) => {
         Alert.alert('Error', error.message);
       });
   }
+
+
   render() {
     return (
+
       <View
         style={{
           height: 140,
@@ -89,15 +88,15 @@ class HuertosCards extends Component<Props, CardState> {
         <View style={{ flex: 1, justifyContent: "center" }}>
 
           <Text style={{ textAlign: "left", marginStart: 12, fontFamily: "Poppins_700Bold", fontSize: 16, color: COLORS.dark2 }}>
-            {this.props.name}
+            {this.props.huerto.Nombre}
           </Text>
 
           <Text style={{ textAlign: "left", marginStart: 12, fontFamily: "Poppins_500Medium", fontSize: 12, color: COLORS.green, marginBottom: -5 }}>
-            {this.props.ubi}
+            {this.props.huerto.Nombre}
           </Text>
 
           <Text style={{ textAlign: "left", marginStart: 12, fontFamily: "Poppins_500Medium", fontSize: 12, color: COLORS.green, marginBottom: -5 }}>
-            Alertas Actuales: {this.props.AlertAct}
+            Alertas Actuales: {0}
           </Text>
 
           <Text style={{ textAlign: "left", marginStart: 12, fontFamily: "Poppins_500Medium", fontSize: 12, color: COLORS.green, marginBottom: -5 }}>
